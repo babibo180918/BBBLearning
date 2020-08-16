@@ -20,21 +20,33 @@ def parameters_initialize(initializer = "zero", size):
         w = np.random.randn(size, 1)*np.sqrt(2/size)
     return w, b
 
-def train(model, X, Y, iteration, learning_rate, print_cost=False):
+def train(model, X, Y, iteration, learning_rate, beta1, beta2, print_cost=False):
     size = model["size"]
     cost_function = model["cost_function"]
     optimizer = model["optimizer"]
     initializer = model["initializer"]
 
     costs = []
+    vgrads = {"vdw":0.0,
+              "vdb":0.0}
+    sgrads = {"sdw":0.0,
+              "sdb":0.0}
     # parameter initialization
     w, b = parameters_initialize(initializer, size)
     for i in range(iteration):
         # compute gradient and cost
         grads, cost = propagate(w, b, X, Y, cost_function)
 
+        vgrads["vdw"] = beta1*vgrads["vdw"] + (1-beta1)*grads["dw"]
+        vgrads["vdb"] = beta1*vgrads["vdb"] + (1-beta1)*grads["db"]
+        v_corrected = 1 - np.power(beta1, i)
+        
+        sgrads["sdw"] = beta2*vgrads["sdw"] + (1-beta2)*np.multiply(grads["dw"], grads["dw"])
+        sgrads["sdb"] = beta2*vgrads["sdb"] + (1-beta2)*np.multiply(grads["db"], grads["db"])
+        s_corrected = 1 - np.power(beta2, i)
+        
         # update parameters
-        w, b = update(w, b, learning_rate, optimizer)
+        w, b = update(w, b, optimizer, grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected)
 
         # save costs
         if i % 100 == 0:
