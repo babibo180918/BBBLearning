@@ -1,17 +1,17 @@
 import numpy as np
 
-def update(w, b, optimizer = "GradientDecent", grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected):
+def update(w, b, grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected, optimizer = "GradientDecent"):
     
     if optimizer == "GradientDecent":
         w = w - learning_rate*grads["dw"]
         b = b - learning_rate*grads["db"]
-    else if optimizer == "momentum":
+    elif optimizer == "momentum":
         w = w - learning_rate*vgrads["vdw"]
         b = b - learning_rate*vgrads["vdb"]
-    else if optimizer == "LMSprop":
+    elif optimizer == "LMSprop":
         w = w - learning_rate*grads["dw"]/np.sqrt(sgrads["sdw"])
         b = b - learning_rate*grads["db"]/np.sqrt(sgrads["sdb"])
-    else if optimizer == "Adam":
+    elif optimizer == "Adam":
         vdw_ = vgrads["vdw"]/v_corrected
         vdb_ = vgrads["vdb"]/v_corrected
         sdw_ = sgrads["sdw"]/s_corrected

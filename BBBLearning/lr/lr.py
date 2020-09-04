@@ -1,4 +1,6 @@
 import numpy as np
+from .propagate import propagate
+from .update import update
 
 def model(size, cost_function="cross_entropy", optimizer="GradientDecent", initializer="random"):
     model = {}
@@ -8,19 +10,19 @@ def model(size, cost_function="cross_entropy", optimizer="GradientDecent", initi
     model["initializer"] = initializer
     return model
 
-def parameters_initialize(initializer = "zero", size):
+def parameters_initialize(size, initializer = "zero"):
     b = 0
     if initializer == "zero":
         w = np.zeros((size, 1))
-    else if initializer == "random":
+    elif initializer == "random":
         w = np.random.randn(size, 1)
-    else if initializer == "xavier":
+    elif initializer == "xavier":
         w = np.random.randn(size, 1)*np.sqrt(1/size)
-    else if initializer == "he":
+    elif initializer == "he":
         w = np.random.randn(size, 1)*np.sqrt(2/size)
     return w, b
 
-def train(model, X, Y, iteration, learning_rate, beta1, beta2, print_cost=False):
+def train(model, X, Y, iteration, learning_rate, beta1, beta2, epsilon, print_cost=False):
     size = model["size"]
     cost_function = model["cost_function"]
     optimizer = model["optimizer"]
@@ -32,7 +34,7 @@ def train(model, X, Y, iteration, learning_rate, beta1, beta2, print_cost=False)
     sgrads = {"sdw":0.0,
               "sdb":0.0}
     # parameter initialization
-    w, b = parameters_initialize(initializer, size)
+    w, b = parameters_initialize(size, initializer)
     for i in range(iteration):
         # compute gradient and cost
         grads, cost = propagate(w, b, X, Y, cost_function)
@@ -41,18 +43,18 @@ def train(model, X, Y, iteration, learning_rate, beta1, beta2, print_cost=False)
         vgrads["vdb"] = beta1*vgrads["vdb"] + (1-beta1)*grads["db"]
         v_corrected = 1 - np.power(beta1, i)
         
-        sgrads["sdw"] = beta2*vgrads["sdw"] + (1-beta2)*np.multiply(grads["dw"], grads["dw"])
-        sgrads["sdb"] = beta2*vgrads["sdb"] + (1-beta2)*np.multiply(grads["db"], grads["db"])
+        sgrads["sdw"] = beta2*sgrads["sdw"] + (1-beta2)*np.multiply(grads["dw"], grads["dw"])
+        sgrads["sdb"] = beta2*sgrads["sdb"] + (1-beta2)*np.multiply(grads["db"], grads["db"])
         s_corrected = 1 - np.power(beta2, i)
         
         # update parameters
-        w, b = update(w, b, optimizer, grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected)
+        w, b = update(w, b, grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected, optimizer)
 
         # save costs
         if i % 100 == 0:
             costs.append(cost)
             if print_cost:
-                print("Cost after iteration %i: %f", %(i, cost))
+                print("Cost after iteration {}: {}".format(i, cost))
     params = {"w":w,
               "b":b}
     return params, costs

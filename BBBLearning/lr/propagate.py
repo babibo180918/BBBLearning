@@ -1,5 +1,5 @@
 import numpy as np
-import Utils.activation
+from ..utils.activation import *
 
 def propagate(w, b, X, Y, cost_function):
     m = X.shape[1]
