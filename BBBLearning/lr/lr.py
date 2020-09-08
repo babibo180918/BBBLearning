@@ -27,7 +27,7 @@ def parameters_initialize(size, initializer = "zero"):
         w = np.random.randn(size, 1)*np.sqrt(2/size)
     return w, b
 
-def train(model, X, Y, iteration, learning_rate, beta1, beta2, epsilon, model_path, print_cost=False):
+def train(model, X, Y, iteration, lambd, learning_rate, beta1, beta2, epsilon, model_path, print_cost=False):
     size = model["size"]
     cost_function = model["cost_function"]
     optimizer = model["optimizer"]
@@ -43,7 +43,7 @@ def train(model, X, Y, iteration, learning_rate, beta1, beta2, epsilon, model_pa
     
     for i in range(iteration):
         # compute gradient and cost
-        grads, cost = propagate(w, b, X, Y, cost_function)
+        grads, cost = propagate(w, b, lambd, X, Y, cost_function)
 
         vgrads["vdw"] = beta1*vgrads["vdw"] + (1-beta1)*grads["dw"]
         vgrads["vdb"] = beta1*vgrads["vdb"] + (1-beta1)*grads["db"]
