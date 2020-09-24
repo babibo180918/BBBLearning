@@ -2,10 +2,10 @@ import numpy as np
 
 def update(w, b, grads, vgrads, sgrads, learning_rate, epsilon, v_corrected, s_corrected, optimizer = "GradientDecent"):
     
-    if optimizer == "GradientDecent":
+    if optimizer == "GradientDescent":
         w = w - learning_rate*grads["dw"]
         b = b - learning_rate*grads["db"]
-    elif optimizer == "momentum":
+    elif optimizer == "Momentum":
         w = w - learning_rate*vgrads["vdw"]
         b = b - learning_rate*vgrads["vdb"]
     elif optimizer == "LMSprop":
